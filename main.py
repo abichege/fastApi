@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from data_schemas import ProductRequest,ProductResponse
-from database import Base,Product
+from database import Base,Product,User
 from sqlalchemy import create_engine, select, func
 from sqlalchemy.orm import sessionmaker, scoped_session
+from datetime import datetime, timedelta
 
 app = FastAPI()
 
@@ -29,6 +30,14 @@ def read_root():
 # @app.get("/items/{item_id}")
 # def read_item(item_id: int, q: str ):
 #     return {"item_id": item_id, "q": q}
+
+# add user running only once
+# def add_user():
+#     user=User(full_name="Abi",email="abi@mail.com",password="12345",created_at=datetime.utcnow())
+#     SessionLocal.add(user)
+#     SessionLocal.commit()
+
+# add_user()  # Call the function to add the user
 
 @app.post("/products")
 def create_product(prod : ProductRequest):
