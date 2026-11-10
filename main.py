@@ -39,7 +39,7 @@ def read_root():
 
 # add_user()  # Call the function to add the user
 
-@app.post("/products")
+@app.post("/products",response_model=ProductResponse)
 def create_product(prod : ProductRequest):
     print("name is --------",prod.name)
     print("amount is-------",prod.amount)
@@ -47,5 +47,11 @@ def create_product(prod : ProductRequest):
     dbprod= Product(user_id=prod.user_id,name=prod.name,amount=prod.amount,created_at=prod.created_at)
     SessionLocal.add(dbprod)
     SessionLocal.commit()
-    return {"test":"prod"}
+    return dbprod
 
+@app.get("/products",response_model=list[ProductResponse])
+def get_products():
+    query = select(Product)
+    all_products = list(SessionLocal.scalars(query).all())
+
+    return all_products
