@@ -1,6 +1,8 @@
+from math import prod
+
 from fastapi import FastAPI
-from data_schemas import ProductRequest,ProductResponse
-from database import Base,Product,User
+from data_schemas import ProductRequest,ProductResponse,SaleRequest,SaleResponse,PaymentRequest,PaymentResponse,StockRequest,StockResponse
+from database import Base,Product,User,Sale,Payment,Stock
 from sqlalchemy import create_engine, select, func
 from sqlalchemy.orm import sessionmaker, scoped_session
 from datetime import datetime, timedelta
@@ -55,3 +57,73 @@ def get_products():
     all_products = list(SessionLocal.scalars(query).all())
 
     return all_products
+
+@app.post("/sales",response_model=SaleResponse)
+def create_sale(sale: SaleRequest):
+    db_sale = Sale(product_id=sale.product_id, created_at=sale.created_at)
+    print("product_id is --------", sale.product_id)
+    print("date is-------", sale.created_at)
+    SessionLocal.add(db_sale)
+    SessionLocal.commit()
+    return db_sale
+
+@app.get("/sales",response_model=list[SaleResponse])
+def get_sales():
+    query = select(Sale)
+    all_sales = list(SessionLocal.scalars(query).all())
+
+    return all_sales
+
+@app.post("/payments",response_model=PaymentResponse)
+def create_payment(payment: PaymentRequest):
+    db_payment = Payment(
+        sale_id=payment.sale_id,
+        mrid=payment.mrid,
+        crid=payment.crid,
+        trans_code=payment.trans_code,
+        trans_amount=payment.trans_amount,
+        phone_paid=payment.phone_paid,
+        status=payment.status,
+        created_at=payment.created_at
+    )
+    print("sale_id is --------", payment.sale_id)
+    print("mrid is --------", payment.mrid)
+    print("crid is --------", payment.crid)
+    print("trans_code is --------", payment.trans_code)
+    print("trans_amount is --------", payment.trans_amount)
+    print("phone_paid is --------", payment.phone_paid)
+    print("status is --------", payment.status)
+    print("date is-------", payment.created_at)
+
+    SessionLocal.add(db_payment)
+    SessionLocal.commit()
+    return db_payment
+
+@app.get("/payments",response_model=list[PaymentResponse])
+def get_payments():
+    query = select(Payment)
+    all_payments = list(SessionLocal.scalars(query).all())
+
+    return all_payments
+
+@app.post("/stock",response_model=StockResponse)
+def create_stock(stock: StockRequest):
+    db_stock = Stock(
+        product_id=stock.product_id,
+        quantity=stock.quantity,
+        updated_at=stock.updated_at
+    )
+    print("product_id is --------", stock.product_id)
+    print("quantity is --------", stock.quantity)
+    print("date is-------", stock.updated_at)
+
+    SessionLocal.add(db_stock)
+    SessionLocal.commit()
+    return db_stock
+
+@app.get("/stock",response_model=list[StockResponse])
+def get_stock():        
+    query = select(Stock)
+    all_stock = list(SessionLocal.scalars(query).all())
+
+    return all_stock
